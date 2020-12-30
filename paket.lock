@@ -1,0 +1,5 @@
+NUGET
+  remote: https://api.nuget.org/v3/index.json
+    Ab3d.PowerToys (9.4.7657)
+    Ab3d.PowerToys.Input (9.4.7657)
+      Ab3d.PowerToys (9.4.7657)
