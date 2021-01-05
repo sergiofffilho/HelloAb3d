@@ -3,10 +3,55 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:HelloWorldAmaro"
+        xmlns:cameras="clr-namespace:Ab3d.Cameras;assembly=Ab3d.PowerToys"
+        xmlns:ab3d="clr-namespace:Ab3d.Controls;assembly=Ab3d.PowerToys"  
+        xmlns:visuals="clr-namespace:Ab3d.Visuals;assembly=Ab3d.PowerToys"       
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
+    <Window.Resources>
+        <DiffuseMaterial x:Key="ObjectsMaterial" x:Name="ObjectsMaterialTeste" Brush="#247589"/>
+    </Window.Resources>
     <Grid x:Name="MyGrid">
-        <TextBlock Text="{Binding HelloText}"></TextBlock>
+        <StackPanel Grid.Row="0" Orientation="Vertical">
+            <Button Name="RecreateDataButton" Content="Recreate data" Click="RecreateModelButtonOnClick" />
+        </StackPanel>
+            
+        <Border Name="ViewportBorder2" Width="700" Height="350" HorizontalAlignment="Left" BorderThickness="1" BorderBrush="Black" Background="Transparent">
+            <Viewport3D Name="Viewport2">
+                <visuals:WireGridVisual3D CenterPosition="50 0 25" Size="200 150" WidthCellsCount="20" HeightCellsCount="15" LineColor="Silver" LineThickness="1"/>
+                <visuals:ColoredAxisVisual3D Length="30" Position="0 0.5 0" />
+                <ModelVisual3D x:Name="ModelVisual">
+                    
+                    <visuals:ConeVisual3D BottomCenterPosition="-30 0 -30" BottomRadius="10" TopRadius="0" Height="20" Material="{StaticResource ObjectsMaterial}"/>
+                </ModelVisual3D>
+
+
+            </Viewport3D>
+        </Border>
+
+        <ab3d:MeshInspectorOverlay Name="MeshInspector2" 
+                                           Camera="{Binding ElementName=Camera2}"
+                                           AutoUpdateWhenCameraIsChanged="True"
+                                           ShowPositionIndexes="True" PositionsTextColor="Black" PositionsTextFontSize="15" PositionsTextFontWeight="Bold"
+                                           ShowTriangleIndexes="True" TriangleIndexesTextColor="Orange" TriangleIndexesTextFontSize="12" TriangleIndexesTextFontWeight="Normal"
+                                           ShowTriangles="True" ShowOnlyFrontFacingTriangles="True" CombinePositionIndexes="WithSame2DScreenPosition"/>
+        <!--<TextBlock Name="MeshInspectorInfoTextBlock" Margin="405 0 0 0" FontSize="12" FontWeight="Bold" VerticalAlignment="Bottom">
+                    <Run Foreground="Black">Black - Position indexes</Run>
+                    <LineBreak />
+                    <Run Foreground="Orange">Orange - Triangle indexes</Run>
+        </TextBlock>-->
+        <cameras:TargetPositionCamera x:Name="Camera2" TargetPosition="50 0 25" 
+                                          Heading="30" Attitude="-45" Bank="0" 
+                                          Distance="200" 
+                                          ShowCameraLight="Always"
+                                          TargetViewport3D="{Binding ElementName=Viewport2}"/>
+
+        <ab3d:MouseCameraController Name="MouseCameraController2"
+                                        RotateCameraConditions="LeftMouseButtonPressed"
+                                        EventsSourceElement="{Binding ElementName=ViewportBorder2}"
+                                        TargetCamera="{Binding ElementName=Camera2}" />
+        <ab3d:CameraControlPanel VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" Width="225" Height="75" ShowMoveButtons="True" 
+                                 TargetCamera="{Binding ElementName=Camera1}"/>
+
     </Grid>
 </Window>
