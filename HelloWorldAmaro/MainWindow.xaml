@@ -17,7 +17,7 @@
         </StackPanel>
             
         <Border Name="ViewportBorder2" Width="700" Height="350" HorizontalAlignment="Left" BorderThickness="1" BorderBrush="Black" Background="Transparent">
-            <Viewport3D Name="Viewport2">
+            <Viewport3D Name="Viewport1">
                 <visuals:WireGridVisual3D CenterPosition="50 0 25" Size="200 150" WidthCellsCount="20" HeightCellsCount="15" LineColor="Silver" LineThickness="1"/>
                 <visuals:ColoredAxisVisual3D Length="30" Position="0 0.5 0" />
                 <ModelVisual3D x:Name="ModelVisual">
@@ -40,13 +40,13 @@
                     <LineBreak />
                     <Run Foreground="Orange">Orange - Triangle indexes</Run>
         </TextBlock>-->
-        <cameras:TargetPositionCamera x:Name="Camera2" TargetPosition="50 0 25" 
+        <cameras:TargetPositionCamera x:Name="Camera1" TargetPosition="50 0 25" 
                                           Heading="30" Attitude="-45" Bank="0" 
                                           Distance="200" 
                                           ShowCameraLight="Always"
                                           TargetViewport3D="{Binding ElementName=Viewport2}"/>
 
-        <ab3d:MouseCameraController Name="MouseCameraController2"
+        <ab3d:MouseCameraController Name="MouseCameraController1"
                                         RotateCameraConditions="LeftMouseButtonPressed"
                                         EventsSourceElement="{Binding ElementName=ViewportBorder2}"
                                         TargetCamera="{Binding ElementName=Camera2}" />
