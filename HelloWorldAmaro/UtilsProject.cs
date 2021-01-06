@@ -34,8 +34,13 @@ namespace HelloWorldAmaro
             }
             
             return newArray;
-        } 
-        
+        }
+
+
+        public void WaitTime(int miliseconds) 
+        {
+            System.Threading.Thread.Sleep(miliseconds);
+        }
     }
 }
 
