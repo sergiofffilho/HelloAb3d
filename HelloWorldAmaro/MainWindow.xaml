@@ -30,7 +30,7 @@
         </Border>
 
         <ab3d:MeshInspectorOverlay Name="MeshInspector2" 
-                                           Camera="{Binding ElementName=Camera2}"
+                                           Camera="{Binding ElementName=Camera1}"
                                            AutoUpdateWhenCameraIsChanged="True"
                                            ShowPositionIndexes="True" PositionsTextColor="Black" PositionsTextFontSize="15" PositionsTextFontWeight="Bold"
                                            ShowTriangleIndexes="True" TriangleIndexesTextColor="Orange" TriangleIndexesTextFontSize="12" TriangleIndexesTextFontWeight="Normal"
@@ -49,7 +49,7 @@
         <ab3d:MouseCameraController Name="MouseCameraController1"
                                         RotateCameraConditions="LeftMouseButtonPressed"
                                         EventsSourceElement="{Binding ElementName=ViewportBorder2}"
-                                        TargetCamera="{Binding ElementName=Camera2}" />
+                                        TargetCamera="{Binding ElementName=Camera1}" />
         <ab3d:CameraControlPanel VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" Width="225" Height="75" ShowMoveButtons="True" 
                                  TargetCamera="{Binding ElementName=Camera1}"/>
 
