@@ -3,7 +3,6 @@ using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using Ab3d.Visuals;
 using System.Linq;
-using HelloWorldAmaro.Teste1;
 using Ab3d.Controls;
 using Ab3d.Common.Cameras;
 using Ab3d.Utilities;
@@ -15,7 +14,7 @@ using System.Threading.Tasks;
 using Ab3d.Cameras;
 
 
-namespace HelloWorldAmaro
+namespace HelloWorldAmaro.ManagerEvents
 {
     public class Controle
     {
@@ -30,24 +29,20 @@ namespace HelloWorldAmaro
         public List<Box> OrdemCurrentGame = new List<Box>();
         public Box[,] MatrizPosisoes;
         public MainWindow MainWindowCurrent;
-
+        private PermissionControle permissions;
         public Controle(MainWindow main)
         {
             MainWindowCurrent = main;
+            permissions = new PermissionControle(MainWindowCurrent);
         }
 
-     
         public async void BoxOnMouseClick(object sender, MouseButton3DEventArgs mouseButton3DEventArgs)
         {
-
-            if (MainWindowCurrent.CheckShowButtons)
+            if (permissions.CheckBoxOnMouseClickBlock(mouseButton3DEventArgs))
             {
                 return;
             }
-            var boxVisual3D = mouseButton3DEventArgs.HitObject as BoxVisual3D;
-
-            if (boxVisual3D == null)
-                return; // This should not happen
+            var boxVisual3D = mouseButton3DEventArgs.HitObject as BoxVisual3D;     
 
             Box boxClicado = new Box()
             {
@@ -55,9 +50,8 @@ namespace HelloWorldAmaro
                 selcted = true,
             };
 
-            Task<bool> movimentoCorretoTask = CheckNextMove(boxClicado);
-            bool movimentoCorreto = movimentoCorretoTask.Result;
-            movimentoCorretoTask.Wait();
+            bool movimentoCorreto = CheckNextMove(boxClicado);
+          
             // Toggle clicked and normal material
 
 
@@ -93,19 +87,11 @@ namespace HelloWorldAmaro
 
         public void BoxOnMouseLeave(object sender, Mouse3DEventArgs mouse3DEventArgs)
         {
-            if (MainWindowCurrent.CheckShowButtons)
-            {
-                return;
-            }
-            if (MainWindowCurrent.IsSelectedBoxClicked)
-            {
-                return;
-            }
-
-            var boxVisual3D = mouse3DEventArgs.HitObject as Ab3d.Visuals.BoxVisual3D;
-            if (boxVisual3D == null)
-                return; // This should not happen
-
+            if (permissions.CheckMouseLeaveBlock(mouse3DEventArgs))
+                 return;
+           
+            var boxVisual3D = mouse3DEventArgs.HitObject as BaseModelVisual3D;
+          
             if (MainWindowCurrent.IsSelectedBoxClicked)
                 boxVisual3D.Material = _clickedMaterial;
             else
@@ -114,32 +100,25 @@ namespace HelloWorldAmaro
 
         public void BoxOnMouseEnter(object sender, Mouse3DEventArgs mouse3DEventArgs)
         {
-            if (MainWindowCurrent.CheckShowButtons)
-            {
-                return;
-            }
-            if (MainWindowCurrent.IsSelectedBoxClicked) {
-                return ;
-            }
-
-            var boxVisual3D = mouse3DEventArgs.HitObject as Ab3d.Visuals.BoxVisual3D;
-            if (boxVisual3D == null)
+            if (permissions.CheckMouseEnterBlock(mouse3DEventArgs))
                 return; // This should not happen
 
             // Set _isSelectedBoxClicked to true if the selected box is clicked (red) - this will be used on MouseLeave
+            var boxVisual3D = mouse3DEventArgs.HitObject as Ab3d.Visuals.BaseModelVisual3D;
             MainWindowCurrent.IsSelectedBoxClicked = ReferenceEquals(boxVisual3D.Material, MainWindowCurrent.CheckShowButtons);
 
             boxVisual3D.Material = _selectedMaterial;
         }
 
-        public void movableEventSource3D_MouseDrag(object sender, MouseDrag3DEventArgs e)
+ 
+        public void movableEventSource3D_MouseDrag(object sender, MouseDrag3DEventArgs eventMause)
         {
 
             //TODO: Verificar eventos de movimento ao drag
-            if (e.HitSurface != null)
+            if (eventMause.HitSurface != null)
             {
-                var boxVisual3D = e.HitObject as BoxVisual3D;
-                if (boxVisual3D == null)
+                var boxVisual3D = eventMause.HitObject as BaseModelVisual3D;
+                if (permissions.CheckMouseDrag(eventMause))
                     return;
 
 
@@ -189,12 +168,19 @@ namespace HelloWorldAmaro
             ordemGame.Clear();
         }
 
-        public Box FindBoxInMatriz(int x = 0, int y = 0)
+        public void ClearAllBox()
         {
-            return MatrizPosisoes[x, y];
+            foreach (var boxVisual3D in MainWindowCurrent.ModelVisual.Children.OfType<BoxVisual3D>())
+                boxVisual3D.Material = _normalMaterial;
         }
 
-        public async Task<bool> CheckNextMove(Box box)
+        private void ClearButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            ClearAllBox();
+            //UpdateTotalClickedHeightText();
+        }
+
+        public bool CheckNextMove(Box box)
         {
             if (OrdemCurrentGame == null || !OrdemCurrentGame.Any())
             {
@@ -202,7 +188,7 @@ namespace HelloWorldAmaro
             }
             else
             {
-                if (OrdemCurrentGame.Last().box.Equals(box.box))
+                if (OrdemCurrentGame.First().box.Equals(box.box))
                 {
 
                     return true;
@@ -216,8 +202,121 @@ namespace HelloWorldAmaro
 
         public void RemoverJogadaAtual()
         {
-            OrdemCurrentGame.RemoveAt(OrdemCurrentGame.Count - 1);
+            OrdemCurrentGame.RemoveAt(0);
         }
+
+        public void PlaneOnClick(object sender, MouseButton3DEventArgs e)
+        {
+            if (permissions.PlaneOnClickBlock(e)) {
+                return;
+            }
+            var sise3DBox = new Size3D(100, 100, 100);
+
+            Point3D teste = Point3D.Add(e.FinalPointHit, new Vector3D(0,100,0)) ;
+            var centerPosition = e.FinalPointHit;
+            MainWindowCurrent.utils.GenarateBox3D(sise3DBox, teste);
+            
+        }
+        public void PlaneOnClickOut(object sender, Ab3d.Common.EventManager3D.MouseDrag3DEventArgs e) 
+        {
+            if (permissions.PlaneOnClickOutBlock(e))
+            {
+                return;
+            }
+        }
+
+    }
+
+    public class PermissionControle {
+        private MainWindow MainWindowCurrent;
+
+        public PermissionControle(MainWindow NewMainWindow) {
+            MainWindowCurrent = NewMainWindow;
+        }
+
+        public bool PlaneOnClickOutBlock(MouseDrag3DEventArgs e) 
+        {
+            if (e.HitSurface != null)
+            {
+                return true;
+            }
+                if (MainWindowCurrent.CheckShowButtons)
+            {
+                return true;
+            }
+            if (MainWindowCurrent.IsSelectedBoxClicked)
+            {
+                return true;
+            }
+     
+            return false;
+        }
+        public bool PlaneOnClickBlock(MouseButton3DEventArgs e) 
+        {
+            if (MainWindowCurrent.CheckShowButtons)
+            {
+                return true;
+            }
+            if (MainWindowCurrent.IsSelectedBoxClicked)
+            {
+                return true;
+            }
+            var baseVisual3D = e.HitObject as Ab3d.Visuals.BaseModelVisual3D;
+            if (baseVisual3D == null)
+                return true; // This should not happen
+            return false;
+        }
+
+        public bool CheckBoxOnMouseClickBlock(MouseButton3DEventArgs mouseButton3DEventArgs)
+        {
+            if (MainWindowCurrent.CheckShowButtons)
+                return true;
+
+            var boxVisual3D = mouseButton3DEventArgs.HitObject as BoxVisual3D;
+
+            if (boxVisual3D == null)
+                return true; // This should not happen
+            return false;
+
+        }
+        public bool CheckMouseLeaveBlock(Mouse3DEventArgs mouse3DEventArgs)
+        {
+            if (MainWindowCurrent.CheckShowButtons)
+                return true;
+
+            if (MainWindowCurrent.IsSelectedBoxClicked)
+                return true;
+
+            var boxVisual3D = mouse3DEventArgs.HitObject as BaseModelVisual3D;
+            if (boxVisual3D == null)
+                return true;
+
+            return false;
+        }
+        public bool CheckMouseEnterBlock(Mouse3DEventArgs mouse3DEventArgs)
+        {
+            if (MainWindowCurrent.CheckShowButtons)
+            {
+                return true;
+            }
+            if (MainWindowCurrent.IsSelectedBoxClicked)
+            {
+                return true;
+            }
+
+            var boxVisual3D = mouse3DEventArgs.HitObject as Ab3d.Visuals.BaseModelVisual3D;
+            if (boxVisual3D == null)
+                return true; // This should not happen
+            return false;
+        }
+        public bool CheckMouseDrag(MouseDrag3DEventArgs e)
+        {
+            var boxVisual3D = e.HitObject as BaseModelVisual3D;
+            if (boxVisual3D == null)
+                return true;
+            return false;
+        }
+
 
 
     }

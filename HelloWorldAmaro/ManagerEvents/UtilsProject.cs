@@ -45,6 +45,17 @@ namespace HelloWorldAmaro
             return newArray;
         }
 
+        public void  GenarateBox3D(Size3D size, Point3D center) {
+            var boxVisual3D = new Ab3d.Visuals.BoxVisual3D()
+            {
+                Size = size,
+                CenterPosition = center,
+                Material = _mainWindow._normalMaterial,
+            };
+
+            _mainWindow.ModelVisual.Children.Add(boxVisual3D);
+        }
+
         public void CriarMesh()
         {
 
@@ -93,7 +104,7 @@ namespace HelloWorldAmaro
             System.Threading.Thread.Sleep(miliseconds);
         }
 
-        public void Setup3DObjects()
+        public void Setup3DObjectsGenius()
         {
             var wireGridVisual3D = new Ab3d.Visuals.WireGridVisual3D()
             {
@@ -131,6 +142,7 @@ namespace HelloWorldAmaro
 
                     _mainWindow.controle.MatrizPosisoes[positionx, positiony] = currentBox;
 
+                  
                     var visualEventSource3D = new VisualEventSource3D(boxVisual3D);
                     visualEventSource3D.MouseEnter += _mainWindow.controle.BoxOnMouseEnter;
                     visualEventSource3D.MouseLeave += _mainWindow.controle.BoxOnMouseLeave;
@@ -148,6 +160,23 @@ namespace HelloWorldAmaro
 
             //ToggleCameraAnimation(); // Start camer animation
         }
+
+        public void StartPlane3D() {
+            var planeVisual3D = new Ab3d.Visuals.PlaneVisual3D()
+            {
+                Size = new Size(500, 500),
+                CenterPosition = new Point3D(1000, 0, 0),
+                Material = _mainWindow._normalMaterial,
+            };
+
+            var visualEventSource3D = new VisualEventSource3D(planeVisual3D);
+            visualEventSource3D.MouseClick += _mainWindow.controle.PlaneOnClick;
+            visualEventSource3D.MouseDrag += new MouseDrag3DEventHandler(_mainWindow.controle.PlaneOnClickOut);
+            _mainWindow.EventsButtons._eventManager3D.RegisterEventSource3D(visualEventSource3D);
+
+            _mainWindow.ModelVisual.Children.Add(planeVisual3D);
+        }
+
     }
 
 }

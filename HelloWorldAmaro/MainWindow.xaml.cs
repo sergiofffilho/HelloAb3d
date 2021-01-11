@@ -3,7 +3,7 @@ using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using Ab3d.Visuals;
 using System.Linq;
-using HelloWorldAmaro.Teste1;
+using HelloWorldAmaro.ManagerEvents;
 using Ab3d.Controls;
 using Ab3d.Common.Cameras;
 using Ab3d.Utilities;
@@ -24,10 +24,8 @@ namespace HelloWorldAmaro
     {
         public bool _isAdjustingDistance = false;
 
-        private UtilsProject utils;
+        public UtilsProject utils;
         
-        public EventManager3D _eventManager3D;
-
         public EventManagerButtons EventsButtons = EventManagerButtons.GetInstance();
 
         public bool IsSelectedBoxClicked { get; set; }
@@ -64,7 +62,8 @@ namespace HelloWorldAmaro
             controle = new Controle(this);
 
             utils.CriarMesh();
-            utils.Setup3DObjects();
+            utils.Setup3DObjectsGenius();
+            utils.StartPlane3D();
             Camera1.CameraChanged += delegate (object s, CameraChangedRoutedEventArgs a)
             {
                 if (CheckShowButtons)
@@ -88,7 +87,7 @@ namespace HelloWorldAmaro
         {
             controle.ClearOrdem();
             controle.AddOrdemGame();
-            ClearAllBox();
+            controle.ClearAllBox();
             try { 
                 await ShowOrdem();
             }
@@ -119,7 +118,7 @@ namespace HelloWorldAmaro
                 test.Material = _normalMaterial;
 
             }
-            ClearAllBox();
+            controle.ClearAllBox();
             CheckShowButtons = false;
             return;
         }
@@ -180,16 +179,7 @@ namespace HelloWorldAmaro
             }
         }
 
-        private void ClearAllBox()
-        {
-            foreach (var boxVisual3D in Viewport1.Children.OfType<BoxVisual3D>())
-                boxVisual3D.Material = _normalMaterial;
-        }
-        private void ClearButton_OnClick(object sender, RoutedEventArgs e)
-        {
-            ClearAllBox();
-            //UpdateTotalClickedHeightText();
-        }
+        
 
         private void FitIntoView()
         {
